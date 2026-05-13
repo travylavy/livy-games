@@ -95,6 +95,37 @@
       }
     }
 
+    // ===== draw a chef hat sitting on top of the sandwich =====
+    function drawChefHat(cx, cy) {
+      // band at the bottom of the hat (the cuff)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 70, cy - 10, 140, 25);
+      // tiny shadow line under the band
+      ctx.fillStyle = "#e0e0e0";
+      ctx.fillRect(cx - 70, cy + 12, 140, 3);
+
+      // puffy top of the hat — three big white circles
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, 0, Math.PI * 2); // left puff
+      ctx.arc(cx + 55, cy - 30, 45, 0, Math.PI * 2); // right puff
+      ctx.arc(cx, cy - 55, 55, 0, Math.PI * 2);      // middle big puff
+      ctx.fill();
+
+      // a soft outline so the hat pops against the background
+      ctx.strokeStyle = "#dcdcdc";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx + 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy - 55, 55, Math.PI, Math.PI * 2);
+      ctx.stroke();
+    }
+
     // title text
     ctx.fillStyle = "#5d3a1a";
     ctx.font = "bold 42px Arial";
@@ -103,6 +134,9 @@
 
     // draw the giant sandwich in the middle
     drawSandwich(canvas.width / 2, canvas.height / 2 + 30);
+
+    // pop a chef hat right on top of the sandwich's bun!
+    drawChefHat(canvas.width / 2, canvas.height / 2 - 90);
   </script>
 </body>
 </html>
