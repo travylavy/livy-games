@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#fff4d6">
+  <title>Sandwich Shop Tycoon</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #fff4d6;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      overscroll-behavior: none;
+      position: fixed;
+    }
+    #game {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    // ===== mobile-first design canvas =====
+    // we always draw as if the screen is this size (tall like a phone),
+    // and the canvas scales to fit any iPhone or iPad.
+    const DESIGN_W = 500;
+    const DESIGN_H = 900;
+
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dpr = 1;
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      const cssW = window.innerWidth;
+      const cssH = window.innerHeight;
+
+      // size the real pixel buffer so it looks crisp on retina screens
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
+
+      // fit the design rectangle inside the screen, keep the aspect ratio
+      scale = Math.min(cssW / DESIGN_W, cssH / DESIGN_H);
+      const drawW = DESIGN_W * scale;
+      const drawH = DESIGN_H * scale;
+      offsetX = (cssW - drawW) / 2;
+      offsetY = (cssH - drawH) / 2;
+
+      draw();
+    }
+
+    function applyDesignTransform() {
+      ctx.setTransform(
+        scale * dpr, 0,
+        0, scale * dpr,
+        offsetX * dpr, offsetY * dpr
+      );
+    }
+
+    // turn a touch/mouse point on the SCREEN into a point in DESIGN coords.
+    // (we'll use this once Livy adds taps and clicks!)
+    function screenToDesign(clientX, clientY) {
+      return {
+        x: (clientX - offsetX) / scale,
+        y: (clientY - offsetY) / scale
+      };
+    }
+
+    function draw() {
+      // wipe the whole real canvas (in raw pixels)
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "#fff4d6";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // switch into our nice design coords
+      applyDesignTransform();
+
+      // play area background (warm bread color)
+      ctx.fillStyle = "#ffe9a8";
+      ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
+
+      // cozy brown border around the play area
+      ctx.strokeStyle = "#8b5a2b";
+      ctx.lineWidth = 8;
+      ctx.strokeRect(4, 4, DESIGN_W - 8, DESIGN_H - 8);
+
+      // title at the top
+      ctx.fillStyle = "#5d3a1a";
+      ctx.font = "bold 30px -apple-system, Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText("🥪 Sandwich Shop Tycoon 🥪", DESIGN_W / 2, 70);
+
+      // draw the giant sandwich in the middle of the screen
+      drawSandwich(DESIGN_W / 2, DESIGN_H / 2 + 60);
+
+      // pop a chef hat right on top of the sandwich's bun!
+      drawChefHat(DESIGN_W / 2, DESIGN_H / 2 - 60);
+    }
+
+    // ===== draw a GIANT tasty sandwich =====
+    function drawSandwich(cx, cy) {
+      // shadow under the sandwich
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 140, 200, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // bottom bread
+      ctx.fillStyle = "#d9a066";
+      ctx.fillRect(cx - 180, cy + 70, 360, 50);
+      ctx.fillStyle = "#b8843f";
+      ctx.fillRect(cx - 180, cy + 115, 360, 8);
+
+      // meat (ham)
+      ctx.fillStyle = "#e57373";
+      ctx.fillRect(cx - 190, cy + 50, 380, 25);
+
+      // cheese (yellow, sticking out the sides a bit)
+      ctx.fillStyle = "#ffd54f";
+      ctx.beginPath();
+      ctx.moveTo(cx - 195, cy + 35);
+      ctx.lineTo(cx + 195, cy + 35);
+      ctx.lineTo(cx + 180, cy + 55);
+      ctx.lineTo(cx - 180, cy + 55);
+      ctx.closePath();
+      ctx.fill();
+
+      // tomato (3 red circles)
+      ctx.fillStyle = "#e53935";
+      ctx.beginPath();
+      ctx.arc(cx - 110, cy + 25, 26, 0, Math.PI * 2);
+      ctx.arc(cx, cy + 25, 26, 0, Math.PI * 2);
+      ctx.arc(cx + 110, cy + 25, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      // lettuce (wavy green)
+      ctx.fillStyle = "#66bb6a";
+      ctx.beginPath();
+      ctx.moveTo(cx - 190, cy + 10);
+      for (let x = -190; x <= 190; x += 30) {
+        ctx.quadraticCurveTo(cx + x + 15, cy - 15, cx + x + 30, cy + 10);
+      }
+      ctx.lineTo(cx + 190, cy + 25);
+      ctx.lineTo(cx - 190, cy + 25);
+      ctx.closePath();
+      ctx.fill();
+
+      // top bread (rounded like a bun)
+      ctx.fillStyle = "#d9a066";
+      ctx.beginPath();
+      ctx.moveTo(cx - 180, cy + 10);
+      ctx.quadraticCurveTo(cx, cy - 100, cx + 180, cy + 10);
+      ctx.closePath();
+      ctx.fill();
+
+      // sesame seeds on top
+      ctx.fillStyle = "#fff8dc";
+      const seeds = [
+        [-110, -35], [-55, -58], [0, -68], [55, -58], [110, -35],
+        [-80, -22], [25, -45], [80, -22]
+      ];
+      for (const [dx, dy] of seeds) {
+        ctx.beginPath();
+        ctx.ellipse(cx + dx, cy + dy, 4.5, 2.8, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ===== draw a chef hat sitting on top of the sandwich =====
+    function drawChefHat(cx, cy) {
+      // band at the bottom of the hat (the cuff)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 70, cy - 10, 140, 25);
+      ctx.fillStyle = "#e0e0e0";
+      ctx.fillRect(cx - 70, cy + 12, 140, 3);
+
+      // puffy top of the hat — three big white circles
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, 0, Math.PI * 2);
+      ctx.arc(cx + 55, cy - 30, 45, 0, Math.PI * 2);
+      ctx.arc(cx, cy - 55, 55, 0, Math.PI * 2);
+      ctx.fill();
+
+      // a soft outline so the hat pops
+      ctx.strokeStyle = "#dcdcdc";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx + 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy - 55, 55, Math.PI, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // ===== mobile glue =====
+    window.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", resize);
+    // stop iOS pinch-zoom and double-tap-zoom inside the game
+    document.addEventListener("gesturestart", e => e.preventDefault());
+    document.addEventListener("dblclick", e => e.preventDefault());
+    // stop pull-to-refresh / scroll bounce while touching the canvas
+    canvas.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+
+    resize();
+  </script>
+</body>
+</html>
