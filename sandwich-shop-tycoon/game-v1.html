@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sandwich Shop Tycoon</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff4d6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      background: #ffe9a8;
+      border: 6px solid #8b5a2b;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    // ===== draw a GIANT tasty sandwich in the middle =====
+    function drawSandwich(cx, cy) {
+      // shadow under the sandwich
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 140, 220, 20, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // bottom bread
+      ctx.fillStyle = "#d9a066";
+      ctx.fillRect(cx - 200, cy + 70, 400, 50);
+      ctx.fillStyle = "#b8843f";
+      ctx.fillRect(cx - 200, cy + 115, 400, 8);
+
+      // meat (ham)
+      ctx.fillStyle = "#e57373";
+      ctx.fillRect(cx - 210, cy + 50, 420, 25);
+
+      // cheese (yellow, sticking out the sides a bit)
+      ctx.fillStyle = "#ffd54f";
+      ctx.beginPath();
+      ctx.moveTo(cx - 215, cy + 35);
+      ctx.lineTo(cx + 215, cy + 35);
+      ctx.lineTo(cx + 200, cy + 55);
+      ctx.lineTo(cx - 200, cy + 55);
+      ctx.closePath();
+      ctx.fill();
+
+      // tomato (3 red circles)
+      ctx.fillStyle = "#e53935";
+      ctx.beginPath();
+      ctx.arc(cx - 120, cy + 25, 28, 0, Math.PI * 2);
+      ctx.arc(cx, cy + 25, 28, 0, Math.PI * 2);
+      ctx.arc(cx + 120, cy + 25, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      // lettuce (wavy green)
+      ctx.fillStyle = "#66bb6a";
+      ctx.beginPath();
+      ctx.moveTo(cx - 210, cy + 10);
+      for (let x = -210; x <= 210; x += 30) {
+        ctx.quadraticCurveTo(cx + x + 15, cy - 15, cx + x + 30, cy + 10);
+      }
+      ctx.lineTo(cx + 210, cy + 25);
+      ctx.lineTo(cx - 210, cy + 25);
+      ctx.closePath();
+      ctx.fill();
+
+      // top bread (rounded like a bun)
+      ctx.fillStyle = "#d9a066";
+      ctx.beginPath();
+      ctx.moveTo(cx - 200, cy + 10);
+      ctx.quadraticCurveTo(cx, cy - 110, cx + 200, cy + 10);
+      ctx.closePath();
+      ctx.fill();
+
+      // sesame seeds on top
+      ctx.fillStyle = "#fff8dc";
+      const seeds = [
+        [-120, -40], [-60, -65], [0, -75], [60, -65], [120, -40],
+        [-90, -25], [30, -50], [90, -25]
+      ];
+      for (const [dx, dy] of seeds) {
+        ctx.beginPath();
+        ctx.ellipse(cx + dx, cy + dy, 5, 3, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ===== draw a chef hat sitting on top of the sandwich =====
+    function drawChefHat(cx, cy) {
+      // band at the bottom of the hat (the cuff)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 70, cy - 10, 140, 25);
+      // tiny shadow line under the band
+      ctx.fillStyle = "#e0e0e0";
+      ctx.fillRect(cx - 70, cy + 12, 140, 3);
+
+      // puffy top of the hat — three big white circles
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, 0, Math.PI * 2); // left puff
+      ctx.arc(cx + 55, cy - 30, 45, 0, Math.PI * 2); // right puff
+      ctx.arc(cx, cy - 55, 55, 0, Math.PI * 2);      // middle big puff
+      ctx.fill();
+
+      // a soft outline so the hat pops against the background
+      ctx.strokeStyle = "#dcdcdc";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx - 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx + 55, cy - 30, 45, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy - 55, 55, Math.PI, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // title text
+    ctx.fillStyle = "#5d3a1a";
+    ctx.font = "bold 42px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("🥪 Sandwich Shop Tycoon 🥪", canvas.width / 2, 70);
+
+    // draw the giant sandwich in the middle
+    drawSandwich(canvas.width / 2, canvas.height / 2 + 30);
+
+    // pop a chef hat right on top of the sandwich's bun!
+    drawChefHat(canvas.width / 2, canvas.height / 2 - 90);
+  </script>
+</body>
+</html>
